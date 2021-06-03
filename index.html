@@ -4,13 +4,33 @@
   <meta charset="UTF-8">
   <meta name="description" content="Chat App">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="./style/index.css">
   <title>Chat</title>
 </head>
 <body>
-
-    <h1>Chat</h1>
     
+  <!-- <chat-button></chat-button> -->
+  <div class="login-box">
+    <input type="text" id="user-input" placeholder="User"/>
+    <button id="login">Login</button>
+  </div>
+  
+  <div class="chat">
+      <div class="people">
+      </div>
+      <div class="box">
+        <div class="window">
+          <div class="history"></div>
+          <div class="typing"></div>
+        </div>
+        
+        <input type="text" id="message-input" placeholder="Message"/>
+        <button id="send">Send</button>
+      </div>
+  </div>
+
+    <script type="module" defer src="/socket.io/socket.io.js"></script>
+    <script type="module" defer src="./js/script.js"></script>
 
 </body>
 </html>
