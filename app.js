@@ -74,9 +74,9 @@ io.on('connection', (socket) => { //Listen for 'connection' event. Each client h
         userID: socket.id,
         username: socket.username
     });
-
-    const chat = DBManager.loadChat(5);
-    
+    // console.log(socket.handshake.auth.chatOffset);
+    const chat = DBManager.loadChat(socket.handshake.auth.chatOffset, 10);
+    socket.handshake.auth.chatOffset += 10;
     chat.toArray((err, result) => {
         if(err) {
             console.error(err);
@@ -94,8 +94,20 @@ io.on('connection', (socket) => { //Listen for 'connection' event. Each client h
         socket.emit('my-message', data);
 
     });
-    socket.on('typing', (data) => {
-        socket.broadcast.emit('typing', data);
+    // socket.on('typing', (data) => {
+    //     socket.broadcast.emit('typing', data);
+    // });
+
+    socket.on('load-more', (data) => {
+        const chat = DBManager.loadChat(socket.handshake.auth.chatOffset, 5);
+        socket.handshake.auth.chatOffset += 5;
+        chat.toArray((err, result) => {
+            if(err) {
+                console.error(err);
+                return;
+            }
+            socket.emit('old', result);
+        }); 
     });
 
 });

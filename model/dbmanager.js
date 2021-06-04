@@ -7,8 +7,8 @@ class DBManager{
     static get collection(){
         return DBManager._collection;
     }
-    static loadChat(number){
-        return (Connection.db.collection(DBManager.collection)).find().sort({$natural:-1}).limit(number);
+    static loadChat(offset, number){
+        return (Connection.db.collection(DBManager.collection)).find().sort({$natural:-1}).skip(offset).limit(number);
     }
     
     static addMessage(message){

@@ -8,9 +8,11 @@ let message = document.getElementById('message-input');
 let user_input_field = document.getElementById('user-input');
 let button = document.getElementById('send');
 let login = document.getElementById('login');
+let load = document.getElementById('load-more');
 let history = document.querySelector('.history');
 let typing = document.querySelector('.typing');
 let people = document.querySelector('.people');
+let win = document.querySelector('.window');
 let connectedUsers = [];
 let usernameAlreadySelected;
 
@@ -36,33 +38,46 @@ login.addEventListener('click', (event) => {
 
 function onUsernameSelection(username){
     usernameAlreadySelected = true;
-    socket.auth = { username:username};
+    socket.auth = { username:username, chatOffset: 0};
     socket.connect();
 }
 
 
 button.addEventListener('click', (event) => {
     socket.emit('chat-message', { user: socket.auth.username, message: message.value});
-    console.log('E');
+    message.value = '';    
+});
+
+load.addEventListener('click', (event) => {
+    socket.emit('load-more', { user: socket.auth.username, message: message.value});
+    // console.log('Request Load more');
 });
 
 // message.addEventListener('input', (event) => {
-//     socket.emit('typing', { user: user.value, message: message.value});
+//     socket.emit('typing', { user_input_field: user_input_field.value, message: message.value});
 // });
 
 
 //Listen for socket event
 socket.on("connect", () =>{
-    console.log('Conectione');
+    // console.log('Conectione');
 });
 socket.on("disconnect", () =>{
     // document.getElementById(socket.auth.username).innerHTML = `${socket.auth.username} - Offline`;
     socket.emit('disconnect', {user: socket.auth});
-    console.log('DisConectione');
+    // console.log('DisConectione');
 });
 
 socket.on('old', (chat) =>{
-    chat.reverse().loforEach((message) => {
+    // console.log(typeof(chat));
+    if(chat.length == 0){
+        // console.log('WWW');
+        load.innerHTML = 'No more';
+        load.disabled = true;
+        load.style.cursor = 'not-allowed';
+        return;
+    }
+    chat.forEach((message) => {
         let p = document.createElement('p');
         if(message.user === socket.auth.username){
             p.className = 'my-msg';
@@ -71,7 +86,8 @@ socket.on('old', (chat) =>{
             p.className = 'msg';
             p.innerHTML =`<strong>${message.user}:</strong> ${message.text}`;
         }
-        document.querySelector('.history').appendChild(p);
+    
+        history.insertBefore(p, history.firstChild); 
     });
 });
 socket.on("users", (allConnectedUsers) => {
@@ -90,6 +106,8 @@ socket.on("users", (allConnectedUsers) => {
             if(element.username != socket.auth.username){
                 const p = document.createElement('p');
                 p.innerHTML = element.username + " - Online";
+                p.className = 'people-row';
+                p.id = element.username;
                 people.appendChild(p);
             }
     });
@@ -112,7 +130,9 @@ socket.on("users", (allConnectedUsers) => {
     });
 });
 socket.on("user connected", (user) => {
-    
+    if(socket.auth.username === user.username){
+        return;
+    }
     connectedUsers.push(user);
     document.getElementById(user.username).innerHTML = `${user.username} - Online`;
 });
@@ -123,18 +143,22 @@ socket.on('chat-message', (data)=>{
     p.className = 'msg';
     p.innerHTML =`<strong>${data.user}:</strong> ${data.message}`;
     document.querySelector('.history').appendChild(p);
+    win.scrollTop = win.scrollHeight;
+
 });
 socket.on('my-message', (data)=>{
-    console.log('MAAAA');
+    // console.log('MAAAA');
     typing.innerHTML = '';
     let p = document.createElement('p');
     p.className = 'my-msg';
     p.innerHTML =`<strong>Me:</strong> ${data.message}`;
     document.querySelector('.history').appendChild(p);
+    win.scrollTop = win.scrollHeight;
     // history.innerHTML += `<p><strong>Me:</strong> ${data.message}</p>`;
 
 });
 // socket.on('typing', (data)=>{
+//     console.log('RRR');
 //     if(data.message === ''){
 //         typing.innerHTML = '';
 //     } else {
