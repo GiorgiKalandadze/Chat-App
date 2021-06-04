@@ -12,14 +12,13 @@ class DBManager{
     }
     
     static addMessage(message){
-        console.log('B');
         const newMessage = {user: message.user, text: message.message};
         Connection.db.collection(DBManager.collection).insertOne(newMessage, (err, res) => {
             if(err){
                 console.error(err);
                 return;
             }
-            console.log(`Message Inserted: ${message.user}\n${message.message}`)
+            // console.log(`Message Inserted: ${message.user}\n${message.message}`)
         });
     }
 }

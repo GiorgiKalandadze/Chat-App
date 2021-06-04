@@ -53,52 +53,48 @@ io.use((socket, next) => {
     socket.username = username;
     next();
 ;});
+
 //Setup server side socket
 io.on('connection', (socket) => { //Listen for 'connection' event. Each client has its own unique socket object
-    // console.log('Back - ', socket.id);
-    // console.log('Socket connection made', socket.id);
+    console.log(`Socket connection made on socket.id - ${socket.id}`);
+
+    //Find out all connected users and send list to current socket/user/client, which just connected
     const users = [];
-    
-    // console.log('4 - Socket/User added in server"s variable users')
     for (let [id, socket] of io.of("/").sockets) {
         users.push({
             userID: id,
             username: socket.username,
         });
-        // console.log(id);
     }
+    io.to(socket.id).emit("connected-users", users); //Send 'connected users list' only to current client
     
-    io.to(socket.id).emit("users", users);
-    
-    socket.broadcast.emit("user connected", {
+    //Notify connected clients that current/new client was connected
+    //Question - doesnt broadcasts :((
+    socket.broadcast.emit("user-connected", {
         userID: socket.id,
         username: socket.username
     });
-    // console.log(socket.handshake.auth.chatOffset);
+
+    //Load last part of chat history from database
     const chat = DBManager.loadChat(socket.handshake.auth.chatOffset, 10);
-    socket.handshake.auth.chatOffset += 10;
+    socket.handshake.auth.chatOffset += 10; //Question - is there any way to keep this chatOffset in socket? Not in handshake
     chat.toArray((err, result) => {
         if(err) {
             console.error(err);
             return;
         }
-        socket.emit('old', result);
+        socket.emit('chat-history', result);
     }); 
     
-    
+      
     //Listeners
     socket.on('chat-message', (data) => {
-        
         DBManager.addMessage(data);
         socket.broadcast.emit('chat-message', data);
         socket.emit('my-message', data);
 
     });
-    // socket.on('typing', (data) => {
-    //     socket.broadcast.emit('typing', data);
-    // });
-
-    socket.on('load-more', (data) => {
+    socket.on('load-more', () => {
         const chat = DBManager.loadChat(socket.handshake.auth.chatOffset, 5);
         socket.handshake.auth.chatOffset += 5;
         chat.toArray((err, result) => {
@@ -106,8 +102,11 @@ io.on('connection', (socket) => { //Listen for 'connection' event. Each client h
                 console.error(err);
                 return;
             }
-            socket.emit('old', result);
+            socket.emit('chat-history', result);
         }); 
     });
+    // socket.on('typing', (data) => {
+    //     socket.broadcast.emit('typing', data);
+    // });
 
 });
