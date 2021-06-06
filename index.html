@@ -4,13 +4,15 @@
   <meta charset="UTF-8">
   <meta name="description" content="Chat App">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./style/index.css">
+  <!-- <link rel="stylesheet" href="./style/index.css"> -->
   <title>Chat</title>
 </head>
 <body>
     
-  <!-- <chat-button></chat-button> -->
-  <div class="login-box">
+  <chat-app></chat-app>
+
+  
+  <!-- <div class="login-box">
     <input type="text" id="user-input" placeholder="User"/>
     <button id="login">Login</button>
   </div>
@@ -28,10 +30,12 @@
         <input type="text" id="message-input" placeholder="Message"/>
         <button id="send">Send</button>
       </div>
-  </div>
-
-    <script type="module" defer src="/socket.io/socket.io.js"></script>
-    <script type="module" defer src="./js/script.js"></script>
+  </div> -->
+  
+  <!-- <script type="module" defer src="./components/chat-button.js"></script> -->
+  <script type="module" defer src="/socket.io/socket.io.js"></script>
+  <!-- <script type="module" defer src="./js/script.js"></script> -->
+  <script type="module" defer src="./bundle/bundle.js"></script>
 
 </body>
 </html>

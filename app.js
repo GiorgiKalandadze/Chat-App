@@ -51,13 +51,12 @@ io.use((socket, next) => {
         return next(new Error('invalid username'));
     }
     socket.username = username;
+    socket.chatOffset = Config.chatStartOffset;
     next();
 ;});
 
 //Setup server side socket
 io.on('connection', (socket) => { //Listen for 'connection' event. Each client has its own unique socket object
-    console.log(`Socket connection made on socket.id - ${socket.id}`);
-
     //Find out all connected users and send list to current socket/user/client, which just connected
     const users = [];
     for (let [id, socket] of io.of("/").sockets) {
@@ -69,15 +68,14 @@ io.on('connection', (socket) => { //Listen for 'connection' event. Each client h
     io.to(socket.id).emit("connected-users", users); //Send 'connected users list' only to current client
     
     //Notify connected clients that current/new client was connected
-    //Question - doesnt broadcasts :((
     socket.broadcast.emit("user-connected", {
         userID: socket.id,
         username: socket.username
     });
-
+    
     //Load last part of chat history from database
-    const chat = DBManager.loadChat(socket.handshake.auth.chatOffset, 10);
-    socket.handshake.auth.chatOffset += 10; //Question - is there any way to keep this chatOffset in socket? Not in handshake
+    const chat = DBManager.loadChat(socket.chatOffset, 10);
+    socket.chatOffset += 10; //Question - is there any way to keep this chatOffset in socket? Not in handshake
     chat.toArray((err, result) => {
         if(err) {
             console.error(err);
@@ -95,8 +93,8 @@ io.on('connection', (socket) => { //Listen for 'connection' event. Each client h
 
     });
     socket.on('load-more', () => {
-        const chat = DBManager.loadChat(socket.handshake.auth.chatOffset, 5);
-        socket.handshake.auth.chatOffset += 5;
+        const chat = DBManager.loadChat(socket.chatOffset, 5);
+        socket.chatOffset += 5;
         chat.toArray((err, result) => {
             if(err) {
                 console.error(err);
@@ -105,6 +103,8 @@ io.on('connection', (socket) => { //Listen for 'connection' event. Each client h
             socket.emit('chat-history', result);
         }); 
     });
+
+
     // socket.on('typing', (data) => {
     //     socket.broadcast.emit('typing', data);
     // });

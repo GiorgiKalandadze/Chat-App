@@ -2,9 +2,11 @@
   "name": "chat",
   "version": "1.0.0",
   "description": "Chat App",
-  "main": "app.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "watch": "webpack -- watch --progress"
   },
   "repository": {
     "type": "git",
@@ -26,5 +28,10 @@
     "lit-element": "^2.5.1",
     "mongodb": "^3.6.9",
     "socket.io": "^4.1.2"
+  },
+  "devDependencies": {
+    "html-webpack-plugin": "^5.3.1",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0"
   }
 }
