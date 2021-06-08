@@ -26,7 +26,8 @@ class ChatApp extends LitElement {
       login_passive: {type: String},
       scrollTop:{type: Number},
       scrollHeight:{type: Number},
-      chat_passive: {type: String}
+      chat_passive: {type: String},
+      msg: {type:String}
     };
   }
   constructor() {
@@ -45,12 +46,12 @@ class ChatApp extends LitElement {
     this.chat_passive = '';
     this.scrollTop = 0;
     this.scrollHeight;
-
+    this.msg = "";
   }
   render() {
       return html`
       <div class="login-box">
-        <input type="text" id="user-input" .placeholder="${this.username_placeholder}" .value="${this.username_input_value}"/>
+        <input type="text" id="user-input"  .placeholder="${this.username_placeholder}" .value="${this.username_input_value}"/>
         <chat-button id="login" .passive="${this.login_passive}" @button-click="${this._onLogin}">Login</chat-button>
       </div>
     
@@ -72,7 +73,7 @@ class ChatApp extends LitElement {
               <div class="typing"></div>
             </div>
             
-            <input type="text" id="message-input" placeholder="${this.message_placeholder}"/>
+            <input type="text" id="message-input"  placeholder="${this.message_placeholder}"/>
             <chat-button id="send"  @button-click="${this._onSend}">Send</chat-button>
           </div>
       </div>
@@ -87,7 +88,6 @@ class ChatApp extends LitElement {
   _onSend(){
     Manager.sendMessage(this.shadowRoot.getElementById('message-input').value);
   }
-
 
 }
 

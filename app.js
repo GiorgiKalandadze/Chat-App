@@ -53,7 +53,7 @@ io.use((socket, next) => {
     socket.username = username;
     socket.chatOffset = Config.chatStartOffset;
     next();
-;});
+});
 
 //Setup server side socket
 io.on('connection', (socket) => { //Listen for 'connection' event. Each client has its own unique socket object
@@ -68,7 +68,8 @@ io.on('connection', (socket) => { //Listen for 'connection' event. Each client h
             username: current.username,
         });
     }
-    io.to(socket.id).emit("connected-users", users); //Send 'connected users list' only to current client
+    
+    io.to(socket.id).emit("connected-users", users, everyone); //Send 'connected users list' only to current client
     
     //Notify connected clients that current/new client was connected
     socket.broadcast.emit("user-connected", {
@@ -106,7 +107,9 @@ io.on('connection', (socket) => { //Listen for 'connection' event. Each client h
             socket.emit('chat-history', result);
         }); 
     });
-
+    socket.on('disconnect', () => {
+        io.emit('client_disconnect', socket.username);
+    })
 
     // socket.on('typing', (data) => {
     //     socket.broadcast.emit('typing', data);

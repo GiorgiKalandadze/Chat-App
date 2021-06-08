@@ -3,18 +3,17 @@ class Manager {
     static setUp(){
         Manager.socket = io.connect('http://localhost:7000', {autoConnect: false});
         Manager.chat_app = document.querySelector('chat-app');
-        Manager.members = ['Giorgi', 'Shota', 'Nika', 'Temo'];
-        
     }
     static listen(){
         Manager.socket.on("connect", () =>{
             
         });
         Manager.socket.on("disconnect", () =>{
-            console.log(`disconnect user - `);
+           
         });
 
-        Manager.socket.on("connected-users", (allConnectedUsers) => {
+        Manager.socket.on("connected-users", (allConnectedUsers, members) => {
+            Manager.members = members; 
             //Sort in alphabetical order
             const connectedUsers = allConnectedUsers.sort((a, b) => {
                 if(a.username < b.username) return -1;
@@ -113,6 +112,16 @@ class Manager {
             console.log('After H', Manager.chat_app.scrollHeight);
                 // history.scrollTop = history.scrollHeight 
         });      
+        Manager.socket.on('client_disconnect', (username) => {
+            const tmp = [];
+            Manager.chat_app.peopleArray.forEach((personRow) => {
+                if(personRow.name === username){
+                    personRow.status = 'offline';
+                }
+                tmp.push(personRow);
+            });
+            Manager.chat_app.peopleArray = tmp; //Question - easy way to change only current?
+        });
     }
     static loginUser(username){
         Manager.user = new User({username:username});
