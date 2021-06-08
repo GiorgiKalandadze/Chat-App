@@ -15,85 +15,103 @@ class Manager {
         });
 
         Manager.socket.on("connected-users", (allConnectedUsers) => {
-            console.log(allConnectedUsers);
             //Sort in alphabetical order
             const connectedUsers = allConnectedUsers.sort((a, b) => {
                 if(a.username < b.username) return -1;
                 return a.username > b.username ? 1 : 0;
             });
-            //Question - Filter and remove current client or have if statement in foreach? 
-            Manager.chat_app.clearPeople();
             // Manager.people.innerHTML = '';
             //At first, load online users in alphabetical order
             let peopleArray = [];
             connectedUsers.forEach((element) => {
-                if(element.username != Manager.socket.auth.username){
-                    const status = document.createElement('status-row');
-                    status.setAttribute('name', element.username);
-                    status.setAttribute('status', 'online');
-                    status.setAttribute('link', `../image/${element.username}.png`);
-                    Manager.chat_app.addPerson(status);
-                    //QUestion - change to send array 
-                }
+                const status = {
+                    name: element.username,
+                    link: `../image/${element.username}.png`,
+                    status: 'online'
+                };
+                peopleArray.push(status); 
             });
             //After onlines, load offline users in alphabetical order
             const connectedUserNames = connectedUsers.map((user) => user.username);
             Manager.members.forEach((personName) => {
                 if(personName != Manager.user.username && !connectedUserNames.includes(personName)){
-                    const status = document.createElement('status-row');
-                    status.setAttribute('name', personName);
-                    status.setAttribute('status', 'offline');
-                    status.setAttribute('link', `../image/${personName}.png`);
-                    Manager.chat_app.addPerson(status);
+                    const status = {
+                        name: personName,
+                        link: `../image/${personName}.png`,
+                        status: 'offline'
+                    };
+                    peopleArray.push(status);
                 }
             });
-
-            // const www = [{name: "VERA", status:"offline"}, {name: "ALOO", status:"offline"}];
-            // Manager.chat_app.setAttribute("peopleArray", JSON.stringify(www));
-            
+            Manager.chat_app.peopleArray = peopleArray;
         });
         Manager.socket.on("user-connected", (user) => {
-            console.log('user-connected', user.username);
             if(Manager.user.username === user.username){
                 return;
             }
-            //Question -  document.getElementById(user.username).innerHTML = `${user.username} - Online`;
+            const tmp = [];
+            Manager.chat_app.peopleArray.forEach((personRow) => {
+                if(personRow.name === user.username){
+                    personRow.status = 'online';
+                }
+                tmp.push(personRow);
+            });
+            Manager.chat_app.peopleArray = tmp; //Question - easy way to change only current?
         });
         Manager.socket.on('chat-history', (chat) =>{
             if(chat.length == 0){
-                Manager.chat_app.setAttribute('load_more_value', '');
-                // Manager.load.innerHTML = 'No more';
-                // Manager.load.disabled = true;
-                // Manager.load.style.cursor = 'not-allowed';
+                Manager.chat_app.setAttribute('load_more_value', 'No More');
+                Manager.chat_app.setAttribute('chat_passive', 'passive');
                 return;
             }
-            chat.forEach((message) => {
-                const row = document.createElement('chat-row');
+            const chatArray = [];
+            // console.log(chat);
+            chat.reverse().forEach((message) => {
+                const row = {};
                 if(message.user === Manager.user.username){
-                    row.setAttribute('name', '');
-                    row.setAttribute('me', 'me');    
+                    row.name = '';
+                    row.me = 'me';
                 } else {
-                    row.setAttribute('name', message.user);
+                    row.name = message.user;
                 }
-                row.setAttribute('text', message.text);
-                row.setAttribute('link', `../image/${message.user}.png`);
-                Manager.chat_app.insertMessage(row, 'before');
-            });
+                row.text = message.text;
+                row.link = `../image/${message.user}.png`;
+                chatArray.push(row);
+            }); 
+            if(Manager.chat_app.messageArray.length == 0){
+                Manager.chat_app.messageArray = chatArray;
+            } else {
+                const tmp = Manager.chat_app.messageArray;
+                Manager.chat_app.messageArray = chatArray.concat(tmp);
+                
+            }
         });
         Manager.socket.on('chat-message', (data)=>{
-            const row = document.createElement('chat-row');
-            row.setAttribute('name', data.user);
-            row.setAttribute('text', data.message);
-            row.setAttribute('link', `../image/${data.user}.png`);
-            Manager.chat_app.insertMessage(row, 'after');
+            const row = [{
+                name: data.user,
+                text: data.message,
+                link: `../image/${data.user}.png`
+            }];
+            const tmp = Manager.chat_app.messageArray;
+            Manager.chat_app.messageArray = tmp.concat(row);
         });
         Manager.socket.on('my-message', (data)=>{
-            const row = document.createElement('chat-row');
-            row.setAttribute('name', '');
-            row.setAttribute('me', 'me');  
-            row.setAttribute('text', data.message);
-            row.setAttribute('link', `../image/${data.user}.png`);
-            Manager.chat_app.insertMessage(row, 'after');
+            const row = [{
+                name: '',
+                text: data.message,
+                me: 'me',
+                link: `../image/${data.user}.png`
+            }];
+            console.log('Beofre T', Manager.chat_app.scrollTop);
+            console.log('Beofre H', Manager.chat_app.scrollHeight);
+            const tmp = Manager.chat_app.messageArray;
+            Manager.chat_app.messageArray = tmp.concat(row);
+            //Question - 6 scrollba
+           
+            Manager.chat_app.scrollTop = Manager.chat_app.scrollHeight;
+            console.log('After T', Manager.chat_app.scrollTop);
+            console.log('After H', Manager.chat_app.scrollHeight);
+                // history.scrollTop = history.scrollHeight 
         });      
     }
     static loginUser(username){
@@ -106,7 +124,7 @@ class Manager {
             .then((data) => {
                 if(data.status === 'ok'){    
                     Manager.onUsernameSelection(data.user);
-                    Manager.chat_app.setAttribute('login_disabled', true);
+                    Manager.chat_app.setAttribute('login_passive', 'passive');
                     //Question how to do it? 
                     //Manager.login_button.style.cursor = 'not-allowed';
                 } else if(data.status === 'fail'){

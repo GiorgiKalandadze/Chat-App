@@ -51,7 +51,6 @@ class StatusRow extends LitElement {
     return {
         link: {type:String},
         name: {type:String},
-        icon: {type:String},
         status: {type:String},
 
     };
@@ -59,7 +58,8 @@ class StatusRow extends LitElement {
   constructor(){
     super();
     
-}
+    }
+    //Question-2
   render() {
       return html`
         <div class="cont">

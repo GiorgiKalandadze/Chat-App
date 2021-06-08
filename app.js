@@ -59,10 +59,13 @@ io.use((socket, next) => {
 io.on('connection', (socket) => { //Listen for 'connection' event. Each client has its own unique socket object
     //Find out all connected users and send list to current socket/user/client, which just connected
     const users = [];
-    for (let [id, socket] of io.of("/").sockets) {
+    for (let [id, current] of io.of("/").sockets) {
+        if(socket.username === current.username){ //Omit current client from connected clients.
+            continue;
+        }
         users.push({
             userID: id,
-            username: socket.username,
+            username: current.username,
         });
     }
     io.to(socket.id).emit("connected-users", users); //Send 'connected users list' only to current client

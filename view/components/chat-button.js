@@ -17,14 +17,26 @@ class ChatButton extends LitElement {
       button:hover{
           opacity: 1;
       }
+      .passive{
+        cursor: not-allowed;
+       
+      }
     `;
+  }
+  static get properties() {
+    return {
+        passive: {type:String},
+        button_disabled: {type:Boolean}
+    };
   }
   constructor(){
     super();
+    this.passive = '';
+    this.button_disabled = false;
   }
   render() {
       return html`
-        <button @click="${this._onClick}"><slot></slot></button>
+        <button class="${this.passive}"  @click="${this._onClick}"><slot></slot></button>
       `;
   }
   _onClick(e){
