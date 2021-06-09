@@ -91,6 +91,7 @@ io.on('connection', (socket) => { //Listen for 'connection' event. Each client h
       
     //Listeners
     socket.on('chat-message', (data) => {
+
         DBManager.addMessage(data);
         socket.broadcast.emit('chat-message', data);
         socket.emit('my-message', data);
@@ -109,10 +110,16 @@ io.on('connection', (socket) => { //Listen for 'connection' event. Each client h
     });
     socket.on('disconnect', () => {
         io.emit('client_disconnect', socket.username);
-    })
+    });
 
-    // socket.on('typing', (data) => {
-    //     socket.broadcast.emit('typing', data);
-    // });
+    socket.on('typing', (username, message) => {
+        console.log(username);
+        console.log(message);
+        if(message === ''){
+            socket.broadcast.emit('user_typing', {username:username, stopped:true});
+        } else {
+            socket.broadcast.emit('user_typing', {username:username, stopped:false});
+        }
+    });
 
 });

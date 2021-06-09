@@ -9,7 +9,7 @@ class ChatRow extends LitElement {
         }
         .row{
             display:flex;
-            max-width: 160px;
+            
             margin-bottom: 10px;
         }
         .avatar{
@@ -20,6 +20,7 @@ class ChatRow extends LitElement {
             margin-right: 5px;
         }
         .box{
+           
             background-color: lightblue;
             border-radius: 5px;
             padding: 5px;
@@ -31,7 +32,10 @@ class ChatRow extends LitElement {
             font-size: 15px;
         }
         .text{
+            
             font-size: 14px;
+            max-width: 160px;
+            word-wrap: break-word;
         }
         .me{
             display:flex;
@@ -39,6 +43,7 @@ class ChatRow extends LitElement {
             margin-left: auto; 
             margin-right: 0;
         }
+        
     `;
   }
   static get properties() {

@@ -14,33 +14,21 @@ class Manager {
 
         Manager.socket.on("connected-users", (allConnectedUsers, members) => {
             Manager.members = members; 
-            //Sort in alphabetical order
-            const connectedUsers = allConnectedUsers.sort((a, b) => {
-                if(a.username < b.username) return -1;
-                return a.username > b.username ? 1 : 0;
-            });
-            // Manager.people.innerHTML = '';
-            //At first, load online users in alphabetical order
             let peopleArray = [];
-            connectedUsers.forEach((element) => {
-                const status = {
-                    name: element.username,
-                    link: `../image/${element.username}.png`,
-                    status: 'online'
-                };
-                peopleArray.push(status); 
-            });
-            //After onlines, load offline users in alphabetical order
-            const connectedUserNames = connectedUsers.map((user) => user.username);
+            const connectedUserNames = allConnectedUsers.map((user) => user.username);
             Manager.members.forEach((personName) => {
+                const status = {
+                    name: personName,
+                    link: `../image/${personName}.png`
+                };
                 if(personName != Manager.user.username && !connectedUserNames.includes(personName)){
-                    const status = {
-                        name: personName,
-                        link: `../image/${personName}.png`,
-                        status: 'offline'
-                    };
+                    status.status = 'offline';
                     peopleArray.push(status);
+                } else if(personName != Manager.user.username && connectedUserNames.includes(personName)){
+                    status.status = 'online';
+                    peopleArray.push(status); 
                 }
+                
             });
             Manager.chat_app.peopleArray = peopleArray;
         });
@@ -93,6 +81,14 @@ class Manager {
             }];
             const tmp = Manager.chat_app.messageArray;
             Manager.chat_app.messageArray = tmp.concat(row);
+            //Remove from typing      
+            // console.log(data);
+            const index = Manager.chat_app.typingArray.indexOf(data.user);
+            const arr = Manager.chat_app.typingArray;
+            if(index > -1){
+                arr.splice(index,1);
+                Manager.chat_app.typingArray = arr; 
+            }
         });
         Manager.socket.on('my-message', (data)=>{
             const row = [{
@@ -101,16 +97,10 @@ class Manager {
                 me: 'me',
                 link: `../image/${data.user}.png`
             }];
-            console.log('Beofre T', Manager.chat_app.scrollTop);
-            console.log('Beofre H', Manager.chat_app.scrollHeight);
             const tmp = Manager.chat_app.messageArray;
             Manager.chat_app.messageArray = tmp.concat(row);
-            //Question - 6 scrollba
-           
-            Manager.chat_app.scrollTop = Manager.chat_app.scrollHeight;
-            console.log('After T', Manager.chat_app.scrollTop);
-            console.log('After H', Manager.chat_app.scrollHeight);
-                // history.scrollTop = history.scrollHeight 
+            Manager.chat_app.moveScroll();
+            
         });      
         Manager.socket.on('client_disconnect', (username) => {
             const tmp = [];
@@ -121,6 +111,29 @@ class Manager {
                 tmp.push(personRow);
             });
             Manager.chat_app.peopleArray = tmp; //Question - easy way to change only current?
+        })
+        Manager.socket.on('user_typing', (data) => {
+            console.log('Before', Manager.chat_app.typingArray);
+                
+            const tmp = Manager.chat_app.typingArray;
+            if(data.stopped){
+                console.log('Stoped');
+                const index = Manager.chat_app.typingArray.indexOf(data.username);
+                if(index > -1){
+                    tmp.splice(index,1);
+                    Manager.chat_app.typingArray = tmp.concat([]); 
+                    
+                    
+                }
+            } else {
+                const arr = [data.username];
+                if(!tmp.includes(data.username)){
+                    
+                    Manager.chat_app.typingArray = tmp.concat(arr);
+                    // console.log(Manager.chat_app.typingArray);
+                }
+            }
+            console.log('After',Manager.chat_app.typingArray);
         });
     }
     static loginUser(username){
@@ -150,11 +163,14 @@ class Manager {
     }
     static sendMessage(message){
         Manager.socket.emit('chat-message', { user: Manager.user.username, message: message});
-        Manager.chat_app.setAttribute('message_placeholder', '');
-        // Manager.message_input.value = '';    
+        
     }
     static loadChat(){
         Manager.socket.emit('load-more');
+    }
+    static typing(message){
+        console.log('MMM ' + message);
+        Manager.socket.emit('typing', Manager.user.username, message);
     }
 }
 

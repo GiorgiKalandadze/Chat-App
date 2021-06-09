@@ -42,26 +42,32 @@ export const chatAppStyle = css
     flex-direction: column;
     border: 2px solid grey;
     padding: 5px;
+    
 }
 .box{
-    border: 1px solid green;
+    
     height: 400px;
     margin-bottom: 10px;
     overflow-y: scroll;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-bottom: 15px;
 }
-#load-more{
-    padding: 0px;
-    font-size: 10px;
-    width: 100px;
-    height: 30px;
-}
+
 .history{
     padding: 5px;
     width: 100%;
-  
+}
+.typing{
+    width:100%;
+}
+.typer{
+    background-color: lightgrey;
+    padding: 2px;
+    color; white;
+    font-size: 15px;
+    margin-bottom :5px;
 }
 .msg, .my-msg{
     border: 1px solid purple;
