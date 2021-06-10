@@ -1,0 +1,37 @@
+{
+  "name": "chat",
+  "version": "1.0.0",
+  "description": "Chat App",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "watch": "webpack -- watch --progress"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GiorgiKalandadze/Chat-App.git"
+  },
+  "keywords": [
+    "Sockets"
+  ],
+  "author": "Giorgi Kalandadze",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GiorgiKalandadze/Chat-App/issues"
+  },
+  "homepage": "https://github.com/GiorgiKalandadze/Chat-App#readme",
+  "dependencies": {
+    "@socket.io/admin-ui": "^0.1.1",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "lit-element": "^2.5.1",
+    "mongodb": "^3.6.9",
+    "socket.io": "^4.1.2"
+  },
+  "devDependencies": {
+    "html-webpack-plugin": "^5.3.1",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0"
+  }
+}
